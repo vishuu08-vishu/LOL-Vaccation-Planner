@@ -1,0 +1,843 @@
+curl http://localhost:3000<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Travel Agency Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="top-bar">
+            <div class="header-content">
+                <h1 class="logo">✈️ LOL Vacation Planners</h1>
+            </div>
+        </header>
+
+        <nav class="main-nav">
+            <button class="nav-btn active" data-tab="dashboard">📊 Dashboard</button>
+            <button class="nav-btn" data-tab="customers">👥 Customers</button>
+            <button class="nav-btn" data-tab="agents">💼 Agents</button>
+            <button class="nav-btn" data-tab="destinations">🌍 Destinations</button>
+            <button class="nav-btn" data-tab="bookings">📅 Bookings</button>
+            <button class="nav-btn" data-tab="reviews">⭐ Reviews</button>
+            <button class="nav-btn" data-tab="datastorage">💾 Data Storage</button>
+        </nav>
+
+        <div class="container">
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-content active">
+                <h2>Dashboard Overview <img src="https://img.icons8.com/color/48/000000/airplane-take-off.png" alt="Airplane" style="width:24px; height:24px; vertical-align:middle; margin-left:10px;"></h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalBookings">0</div>
+                        <div class="stat-label">Total Bookings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalCustomers">0</div>
+                        <div class="stat-label">Customers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalAgents">0</div>
+                        <div class="stat-label">Active Agents</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avgRating">0</div>
+                        <div class="stat-label">Avg. Rating</div>
+                    </div>
+                </div>
+                <div class="recent-section">
+                    <h3>Recent Activity</h3>
+                    <div id="recentBookings" class="activity-list"></div>
+                </div>
+            </section>
+
+            <!-- Customers Tab -->
+            <section id="customers" class="tab-content">
+                <h2>Customer Management <img src="https://img.icons8.com/color/48/000000/user-group-man-man.png" alt="Customers" style="width:24px; height:24px; vertical-align:middle; margin-left:10px;"></h2>
+                <form class="form-section" id="customerForm">
+                    <div class="form-grid">
+                        <input id="cust_id" placeholder="Customer ID" type="number" required>
+                        <input id="cust_name" placeholder="Full Name" type="text" required>
+                        <input id="cust_email" placeholder="Email" type="email" required>
+                        <input id="cust_phone" placeholder="Phone Number" type="tel">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="primary" onclick="addCustomer()">Add Customer</button>
+                        <button type="button" class="secondary" onclick="clearCustomerForm()">Clear</button>
+                    </div>
+                </form>
+                <div id="customersList" class="list-container"></div>
+            </section>
+
+            <!-- Agents Tab -->
+            <section id="agents" class="tab-content">
+                <h2>Agent Management <img src="https://img.icons8.com/color/48/000000/briefcase.png" alt="Agents" style="width:24px; height:24px; vertical-align:middle; margin-left:10px;"></h2>
+                <form class="form-section" id="agentForm">
+                    <div class="form-grid">
+                        <input id="agent_id" placeholder="Agent ID" type="number" required>
+                        <input id="agent_name" placeholder="Full Name" type="text" required>
+                        <input id="agent_specialization" placeholder="Specialization" type="text">
+                        <input id="agent_phone" placeholder="Phone" type="tel">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="primary" onclick="addAgent()">Add Agent</button>
+                        <button type="button" class="secondary" onclick="clearAgentForm()">Clear</button>
+                    </div>
+                </form>
+                <div id="agentsList" class="list-container"></div>
+            </section>
+
+            <!-- Destinations Tab -->
+            <section id="destinations" class="tab-content">
+                <h2>Destinations & Packages</h2>
+                <form class="form-section" id="destinationForm">
+                    <div class="form-grid">
+                        <input id="dest_id" placeholder="Destination ID" type="number" required>
+                        <input id="dest_name" placeholder="Destination Name" type="text" required>
+                        <input id="dest_country" placeholder="Country" type="text">
+                        <input id="dest_price" placeholder="Package Price (₹)" type="number" step="0.01" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="primary" onclick="addDestination()">Add Destination</button>
+                        <button type="button" class="secondary" onclick="clearDestinationForm()">Clear</button>
+                    </div>
+                </form>
+                <div id="destinationsList" class="packages-grid"></div>
+            </section>
+
+            <!-- Bookings Tab -->
+            <section id="bookings" class="tab-content">
+                <h2>Travel Bookings</h2>
+                <form class="form-section" id="bookingForm">
+                    <div class="form-grid">
+                        <input id="book_customer_id" placeholder="Customer ID" type="number" required>
+                        <input id="book_agent_id" placeholder="Agent ID" type="number" required>
+                        <input id="book_destination_id" placeholder="Destination ID" type="number" required>
+                        <input id="book_date" placeholder="Travel Date" type="date" required>
+                        <input id="book_duration" placeholder="Duration (days)" type="number">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="primary" onclick="addBooking()">Create Booking</button>
+                        <button type="button" class="secondary" onclick="clearBookingForm()">Clear</button>
+                    </div>
+                </form>
+                <div id="bookingsList" class="bookings-list"></div>
+            </section>
+
+            <!-- Reviews Tab -->
+            <section id="reviews" class="tab-content">
+                <h2>Customer Reviews & Ratings</h2>
+                <form class="form-section" id="reviewForm">
+                    <div class="form-grid">
+                        <input id="review_customer_id" placeholder="Customer ID" type="number" required>
+                        <input id="review_agent_id" placeholder="Agent ID" type="number" required>
+                        <input id="review_destination_id" placeholder="Destination ID" type="number" required>
+                        <select id="review_rating" required>
+                            <option value="">Select Rating</option>
+                            <option value="5">⭐⭐⭐⭐⭐ Excellent (5)</option>
+                            <option value="4">⭐⭐⭐⭐ Very Good (4)</option>
+                            <option value="3">⭐⭐⭐ Good (3)</option>
+                            <option value="2">⭐⭐ Fair (2)</option>
+                            <option value="1">⭐ Poor (1)</option>
+                        </select>
+                        <textarea id="review_comments" placeholder="Leave your feedback..." rows="2"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="primary" onclick="addReview()">Submit Review</button>
+                        <button type="button" class="secondary" onclick="clearReviewForm()">Clear</button>
+                    </div>
+                </form>
+                <div id="reviewsList" class="reviews-grid"></div>
+            </section>
+
+            <!-- Data Storage Tab -->
+            <section id="datastorage" class="tab-content">
+                <h2>Centralized Data Storage</h2>
+                <div class="storage-toolbar">
+                    <button class="primary" onclick="exportDataAsJSON()">📥 Export as JSON</button>
+                    <button class="secondary" onclick="exportDataAsCSV()">📊 Export as CSV</button>
+                    <button class="secondary" onclick="clearAllData()">🗑️ Clear All Data</button>
+                </div>
+
+                <div class="storage-summary">
+                    <div class="storage-stat">
+                        <div class="storage-label">Total Customers</div>
+                        <div class="storage-count" id="storageCustCount">0</div>
+                    </div>
+                    <div class="storage-stat">
+                        <div class="storage-label">Total Agents</div>
+                        <div class="storage-count" id="storageAgentCount">0</div>
+                    </div>
+                    <div class="storage-stat">
+                        <div class="storage-label">Total Destinations</div>
+                        <div class="storage-count" id="storageDestCount">0</div>
+                    </div>
+                    <div class="storage-stat">
+                        <div class="storage-label">Total Bookings</div>
+                        <div class="storage-count" id="storageBookCount">0</div>
+                    </div>
+                    <div class="storage-stat">
+                        <div class="storage-label">Total Reviews</div>
+                        <div class="storage-count" id="storageRevCount">0</div>
+                    </div>
+                </div>
+
+                <!-- Customers Data -->
+                <div class="storage-section">
+                    <h3>📋 Customers Data</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                </tr>
+                            </thead>
+                            <tbody id="storageCustomersTable">
+                                <tr><td colspan="4" class="muted">No customers</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Agents Data -->
+                <div class="storage-section">
+                    <h3>👔 Agents Data</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Agent ID</th>
+                                    <th>Name</th>
+                                    <th>Specialization</th>
+                                    <th>Phone</th>
+                                </tr>
+                            </thead>
+                            <tbody id="storageAgentsTable">
+                                <tr><td colspan="4" class="muted">No agents</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Destinations Data -->
+                <div class="storage-section">
+                    <h3>🏖️ Destinations Data</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Destination ID</th>
+                                    <th>Name</th>
+                                    <th>Country</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="storageDestinationsTable">
+                                <tr><td colspan="4" class="muted">No destinations</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bookings Data -->
+                <div class="storage-section">
+                    <h3>🎫 Bookings Data</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer ID</th>
+                                    <th>Agent ID</th>
+                                    <th>Destination ID</th>
+                                    <th>Travel Date</th>
+                                    <th>Duration (days)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="storageBookingsTable">
+                                <tr><td colspan="5" class="muted">No bookings</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Reviews Data -->
+                <div class="storage-section">
+                    <h3>⭐ Reviews Data</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer ID</th>
+                                    <th>Agent ID</th>
+                                    <th>Destination ID</th>
+                                    <th>Rating</th>
+                                    <th>Comments</th>
+                                </tr>
+                            </thead>
+                            <tbody id="storageReviewsTable">
+                                <tr><td colspan="5" class="muted">No reviews</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Central Data State
+        const AppState = {
+            customers: [],
+            agents: [],
+            destinations: [],
+            bookings: [],
+            reviews: [],
+
+            loadFromStorage() {
+                this.customers = this.getAllFromStorage('customer_');
+                this.agents = this.getAllFromStorage('agent_');
+                this.destinations = this.getAllFromStorage('dest_');
+                this.bookings = this.getAllFromStorage('booking_');
+            },
+
+            getAllFromStorage(prefix) {
+                const items = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith(prefix)) {
+                        items.push(JSON.parse(localStorage.getItem(key)));
+                    }
+                }
+                return items;
+            }
+        };
+
+        // Validation Functions for PK/FK Constraints
+        function isIdUnique(id) {
+            const allIds = [
+                ...AppState.customers.map(c => c.id),
+                ...AppState.agents.map(a => a.id),
+                ...AppState.destinations.map(d => d.id)
+            ];
+            return !allIds.includes(Number(id));
+        }
+
+        function validateBookingFKs(cid, aid, did) {
+            const customerExists = AppState.customers.some(c => c.id == cid);
+            const agentExists = AppState.agents.some(a => a.id == aid);
+            const destExists = AppState.destinations.some(d => d.id == did);
+            return { customerExists, agentExists, destExists };
+        }
+
+        function validateReviewFKs(cid, aid, did) {
+            return validateBookingFKs(cid, aid, did);
+        }
+
+        // Tab Navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                const tabId = e.target.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+                document.body.className = 'tab-' + tabId;
+                if (tabId === 'dashboard') updateDashboard();
+                if (tabId === 'datastorage') loadDataStorage();
+            });
+        });
+
+        // Update Dashboard with all connected data
+        async function updateDashboard() {
+            AppState.loadFromStorage();
+            
+            // Update counts
+            document.getElementById('totalBookings').textContent = AppState.bookings.length + AppState.reviews.length;
+            document.getElementById('totalCustomers').textContent = AppState.customers.length;
+            document.getElementById('totalAgents').textContent = AppState.agents.length;
+
+            // Calculate average rating
+            const avgRating = AppState.reviews.length > 0 
+                ? (AppState.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / AppState.reviews.length).toFixed(1)
+                : 0;
+            document.getElementById('avgRating').textContent = avgRating;
+
+            // Recent Activity
+            const recent = [
+                ...AppState.customers.map(c => `<div class="activity-item">✅ Customer Added: ${c.name}</div>`),
+                ...AppState.bookings.map(b => `<div class="activity-item">📅 Booking: Customer ${b.cid} → Agent ${b.aid}</div>`),
+                ...AppState.reviews.map(r => `<div class="activity-item">⭐ Review: Rating ${r.rating} from Customer ${r.customer_id}</div>`)
+            ].slice(-4).reverse();
+
+            document.getElementById('recentBookings').innerHTML = recent.length > 0
+                ? recent.join('')
+                : '<p class="muted">No activity yet</p>';
+        }
+
+        // Customer Management
+        async function addCustomer() {
+            const id = document.getElementById('cust_id').value;
+            const name = document.getElementById('cust_name').value;
+            const email = document.getElementById('cust_email').value;
+            const phone = document.getElementById('cust_phone').value;
+            if (!id || !name) return alert('Fill required fields');
+            // Check if customer with this ID already exists
+            if (localStorage.getItem(`customer_${id}`)) {
+                return alert('Already existing customer. Cannot update with same ID.');
+            }
+            if (!isIdUnique(id)) return alert('ID already exists in another section. Please use a unique ID.');
+            const data = {id, name, email, phone};
+            localStorage.setItem(`customer_${id}`, JSON.stringify(data));
+            // Send to backend to update CSV
+            try {
+                await fetch('/api/customers', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(data)
+                });
+            } catch (e) {
+                console.log('CSV update sent');
+            }
+            clearCustomerForm();
+            listCustomers();
+            updateDashboard();
+        }
+
+        async function listCustomers() {
+            const list = document.getElementById('customersList');
+            const customers = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('customer_')) {
+                    customers.push(JSON.parse(localStorage.getItem(key)));
+                }
+            }
+            const recentCustomers = customers.sort((a, b) => b.id - a.id).slice(0, 4);
+            list.innerHTML = recentCustomers.map(c => `
+                <div class="list-item">
+                    <div><strong>${c.name}</strong> (ID: ${c.id})</div>
+                    <div class="text-muted">${c.email} • ${c.phone}</div>
+                </div>
+            `).join('') || '<p class="muted">No customers yet</p>';
+        }
+
+        function clearCustomerForm() {
+            document.getElementById('cust_id').value = '';
+            document.getElementById('cust_name').value = '';
+            document.getElementById('cust_email').value = '';
+            document.getElementById('cust_phone').value = '';
+        }
+
+        // Agent Management
+        async function addAgent() {
+            const id = document.getElementById('agent_id').value;
+            const name = document.getElementById('agent_name').value;
+            const spec = document.getElementById('agent_specialization').value;
+            const phone = document.getElementById('agent_phone').value;
+            if (!id || !name) return alert('Fill required fields');
+            // Check if agent with this ID already exists
+            if (localStorage.getItem(`agent_${id}`)) {
+                return alert('Already existing agent. Cannot update with same ID.');
+            }
+            if (!isIdUnique(id)) return alert('ID already exists in another section. Please use a unique ID.');
+            const data = {id, name, spec, phone};
+            localStorage.setItem(`agent_${id}`, JSON.stringify(data));
+            // Send to backend to update CSV
+            try {
+                await fetch('/api/agents', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(data)
+                });
+            } catch (e) {
+                console.log('CSV update sent');
+            }
+            clearAgentForm();
+            listAgents();
+            updateDashboard();
+        }
+
+        async function listAgents() {
+            const list = document.getElementById('agentsList');
+            const agents = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('agent_')) {
+                    agents.push(JSON.parse(localStorage.getItem(key)));
+                }
+            }
+            const recentAgents = agents.sort((a, b) => b.id - a.id).slice(0, 4);
+            list.innerHTML = recentAgents.map(a => `
+                <div class="list-item">
+                    <div><strong>${a.name}</strong> (ID: ${a.id})</div>
+                    <div class="text-muted">${a.spec} • ${a.phone}</div>
+                </div>
+            `).join('') || '<p class="muted">No agents yet</p>';
+        }
+
+        function clearAgentForm() {
+            document.getElementById('agent_id').value = '';
+            document.getElementById('agent_name').value = '';
+            document.getElementById('agent_specialization').value = '';
+            document.getElementById('agent_phone').value = '';
+        }
+
+        // Destination Management
+        async function addDestination() {
+            const id = document.getElementById('dest_id').value;
+            const name = document.getElementById('dest_name').value;
+            const country = document.getElementById('dest_country').value;
+            const price = document.getElementById('dest_price').value;
+            if (!id || !name || !price) return alert('Fill required fields');
+            // Check if destination with this ID already exists
+            if (localStorage.getItem(`dest_${id}`)) {
+                return alert('Already existing destination. Cannot update with same ID.');
+            }
+            if (!isIdUnique(id)) return alert('ID already exists in another section. Please use a unique ID.');
+            const data = {id, name, country, price};
+            localStorage.setItem(`dest_${id}`, JSON.stringify(data));
+            // Send to backend to update CSV
+            try {
+                await fetch('/api/destinations', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(data)
+                });
+            } catch (e) {
+                console.log('CSV update sent');
+            }
+            clearDestinationForm();
+            listDestinations();
+            updateDashboard();
+        }
+
+        async function listDestinations() {
+            const list = document.getElementById('destinationsList');
+            const dests = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('dest_')) {
+                    dests.push(JSON.parse(localStorage.getItem(key)));
+                }
+            }
+            const recentDests = dests.slice(-4);
+            list.innerHTML = recentDests.map(d => `
+                <div class="package-card">
+                    <h3>${d.name}</h3>
+                    <p class="country">${d.country}</p>
+                    <p class="price">₹${parseFloat(d.price).toFixed(2)}</p>
+                    <p class="id">ID: ${d.id}</p>
+                </div>
+            `).join('') || '<p class="muted">No destinations yet</p>';
+        }
+
+        function clearDestinationForm() {
+            document.getElementById('dest_id').value = '';
+            document.getElementById('dest_name').value = '';
+            document.getElementById('dest_country').value = '';
+            document.getElementById('dest_price').value = '';
+        }
+
+        // Booking Management
+        async function addBooking() {
+            const cid = document.getElementById('book_customer_id').value;
+            const aid = document.getElementById('book_agent_id').value;
+            const did = document.getElementById('book_destination_id').value;
+            const date = document.getElementById('book_date').value;
+            const duration = document.getElementById('book_duration').value;
+            if (!cid || !aid || !did || !date) return alert('Fill required fields');
+            // Check if booking with this customer ID already exists
+            if (AppState.bookings.some(b => b.cid == cid)) {
+                return alert('Already existing booking for this customer. Cannot update with same ID.');
+            }
+            const { customerExists, agentExists, destExists } = validateBookingFKs(cid, aid, did);
+            if (!customerExists) return alert('Customer ID not found. Please add the customer first.');
+            if (!agentExists) return alert('Agent ID not found. Please add the agent first.');
+            if (!destExists) return alert('Destination ID not found. Please add the destination first.');
+            const data = {cid, aid, did, date, duration};
+            localStorage.setItem(`booking_${Date.now()}`, JSON.stringify(data));
+            // Send to backend to update CSV
+            try {
+                await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(data)
+                });
+            } catch (e) {
+                console.log('CSV update sent');
+            }
+            clearBookingForm();
+            listBookings();
+            updateDashboard();
+        }
+
+        async function listBookings() {
+            const list = document.getElementById('bookingsList');
+            const bookings = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('booking_')) {
+                    bookings.push(JSON.parse(localStorage.getItem(key)));
+                }
+            }
+            const recentBookings = bookings.slice(-4);
+            list.innerHTML = recentBookings.map((b, i) => `
+                <div class="booking-item">
+                    <div><strong>Booking #${i+1}</strong></div>
+                    <div>Customer ${b.cid} → Agent ${b.aid} → Destination ${b.did}</div>
+                    <div class="text-muted">Travel Date: ${b.date} | Duration: ${b.duration} days</div>
+                </div>
+            `).join('') || '<p class="muted">No bookings yet</p>';
+        }
+
+        function clearBookingForm() {
+            document.getElementById('book_customer_id').value = '';n
+            document.getElementById('book_agent_id').value = '';
+            document.getElementById('book_destination_id').value = '';
+            document.getElementById('book_date').value = '';
+            document.getElementById('book_duration').value = '';
+        }
+
+        // Review Management
+        async function addReview() {
+            const payload = {
+                customer_id: Number(document.getElementById('review_customer_id').value),
+                agent_id: Number(document.getElementById('review_agent_id').value),
+                destination_id: Number(document.getElementById('review_destination_id').value),
+                rating: Number(document.getElementById('review_rating').value),
+                comments: document.getElementById('review_comments').value
+            };
+            if (!payload.customer_id || !payload.agent_id || !payload.rating) return alert('Fill required fields');
+            const { customerExists, agentExists, destExists } = validateReviewFKs(payload.customer_id, payload.agent_id, payload.destination_id);
+            if (!customerExists) return alert('Customer ID not found. Please add the customer first.');
+            if (!agentExists) return alert('Agent ID not found. Please add the agent first.');
+            if (!destExists) return alert('Destination ID not found. Please add the destination first.');
+
+            try {
+                const res = await fetch('/reviews', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    clearReviewForm();
+                    listReviews();
+                    updateDashboard();
+                }
+            } catch (e) {
+                alert('Error submitting review');
+            }
+        }
+
+        async function listReviews() {
+            try {
+                const res = await fetch('/reviews');
+                const data = await res.json();
+                AppState.reviews = data;
+                const recentReviews = data.slice(-4);
+                const list = document.getElementById('reviewsList');
+                list.innerHTML = recentReviews.map(r => `
+                    <div class="review-card">
+                        <div class="rating">${'⭐'.repeat(r.rating)}</div>
+                        <div class="comment">"${r.comments || 'No comment'}"</div>
+                        <div class="meta">Customer ${r.customer_id} • Agent ${r.agent_id} • Dest ${r.destination_id}</div>
+                    </div>
+                `).join('') || '<p class="muted">No reviews yet</p>';
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function clearReviewForm() {
+            document.getElementById('review_customer_id').value = '';
+            document.getElementById('review_agent_id').value = '';
+            document.getElementById('review_destination_id').value = '';
+            document.getElementById('review_rating').value = '';
+            document.getElementById('review_comments').value = '';
+        }
+
+        // Data Storage Management
+        function loadDataStorage() {
+            AppState.loadFromStorage();
+            
+            // Update counts
+            document.getElementById('storageCustCount').textContent = AppState.customers.length;
+            document.getElementById('storageAgentCount').textContent = AppState.agents.length;
+            document.getElementById('storageDestCount').textContent = AppState.destinations.length;
+            document.getElementById('storageBookCount').textContent = AppState.bookings.length;
+            document.getElementById('storageRevCount').textContent = AppState.reviews.length;
+
+            // Customers Table
+            const custTable = document.getElementById('storageCustomersTable');
+            custTable.innerHTML = AppState.customers.length > 0
+                ? AppState.customers.map(c => `
+                    <tr>
+                        <td>${c.id}</td>
+                        <td>${c.name}</td>
+                        <td>${c.email}</td>
+                        <td>${c.phone}</td>
+                    </tr>
+                `).join('')
+                : '<tr><td colspan="4" class="muted">No customers</td></tr>';
+
+            // Agents Table
+            const agentTable = document.getElementById('storageAgentsTable');
+            agentTable.innerHTML = AppState.agents.length > 0
+                ? AppState.agents.map(a => `
+                    <tr>
+                        <td>${a.id}</td>
+                        <td>${a.name}</td>
+                        <td>${a.spec}</td>
+                        <td>${a.phone}</td>
+                    </tr>
+                `).join('')
+                : '<tr><td colspan="4" class="muted">No agents</td></tr>';
+
+            // Destinations Table
+            const destTable = document.getElementById('storageDestinationsTable');
+            destTable.innerHTML = AppState.destinations.length > 0
+                ? AppState.destinations.map(d => `
+                    <tr>
+                        <td>${d.id}</td>
+                        <td>${d.name}</td>
+                        <td>${d.country}</td>
+                        <td>$${parseFloat(d.price).toFixed(2)}</td>
+                    </tr>
+                `).join('')
+                : '<tr><td colspan="4" class="muted">No destinations</td></tr>';
+
+            // Bookings Table
+            const bookTable = document.getElementById('storageBookingsTable');
+            bookTable.innerHTML = AppState.bookings.length > 0
+                ? AppState.bookings.map(b => `
+                    <tr>
+                        <td>${b.cid}</td>
+                        <td>${b.aid}</td>
+                        <td>${b.did}</td>
+                        <td>${b.date}</td>
+                        <td>${b.duration}</td>
+                    </tr>
+                `).join('')
+                : '<tr><td colspan="5" class="muted">No bookings</td></tr>';
+
+            // Reviews Table
+            const revTable = document.getElementById('storageReviewsTable');
+            revTable.innerHTML = AppState.reviews.length > 0
+                ? AppState.reviews.map(r => `
+                    <tr>
+                        <td>${r.customer_id}</td>
+                        <td>${r.agent_id}</td>
+                        <td>${r.destination_id}</td>
+                        <td>⭐ ${r.rating}</td>
+                        <td>${r.comments}</td>
+                    </tr>
+                `).join('')
+                : '<tr><td colspan="5" class="muted">No reviews</td></tr>';
+        }
+
+        function exportDataAsJSON() {
+            AppState.loadFromStorage();
+            const allData = {
+                timestamp: new Date().toISOString(),
+                customers: AppState.customers,
+                agents: AppState.agents,
+                destinations: AppState.destinations,
+                bookings: AppState.bookings,
+                reviews: AppState.reviews
+            };
+            const json = JSON.stringify(allData, null, 2);
+            const blob = new Blob([json], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `travel-data-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportDataAsCSV() {
+            AppState.loadFromStorage();
+            let csv = 'TRAVEL AGENCY - COMPLETE DATA EXPORT\n';
+            csv += `Exported: ${new Date().toLocaleString()}\n\n`;
+
+            // Customers CSV
+            csv += 'CUSTOMERS\n';
+            csv += 'Customer ID,Name,Email,Phone\n';
+            AppState.customers.forEach(c => {
+                csv += `${c.id},"${c.name}","${c.email}","${c.phone}"\n`;
+            });
+            csv += '\n';
+
+            // Agents CSV
+            csv += 'AGENTS\n';
+            csv += 'Agent ID,Name,Specialization,Phone\n';
+            AppState.agents.forEach(a => {
+                csv += `${a.id},"${a.name}","${a.spec}","${a.phone}"\n`;
+            });
+            csv += '\n';
+
+            // Destinations CSV
+            csv += 'DESTINATIONS\n';
+            csv += 'Destination ID,Name,Country,Price\n';
+            AppState.destinations.forEach(d => {
+                csv += `${d.id},"${d.name}","${d.country}","${d.price}"\n`;
+            });
+            csv += '\n';
+
+            // Bookings CSV
+            csv += 'BOOKINGS\n';
+            csv += 'Customer ID,Agent ID,Destination ID,Travel Date,Duration\n';
+            AppState.bookings.forEach(b => {
+                csv += `${b.cid},${b.aid},${b.did},"${b.date}",${b.duration}\n`;
+            });
+            csv += '\n';
+
+            // Reviews CSV
+            csv += 'REVIEWS\n';
+            csv += 'Customer ID,Agent ID,Destination ID,Rating,Comments\n';
+            AppState.reviews.forEach(r => {
+                csv += `${r.customer_id},${r.agent_id},${r.destination_id},${r.rating},"${r.comments}"\n`;
+            });
+
+            const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `travel-data-${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAllData() {
+            if (!confirm('Are you sure you want to clear ALL data? This cannot be undone!')) return;
+            localStorage.clear();
+            AppState.customers = [];
+            AppState.agents = [];
+            AppState.destinations = [];
+            AppState.bookings = [];
+            AppState.reviews = [];
+            loadDataStorage();
+            updateDashboard();
+            alert('All data has been cleared');
+        }
+
+        // Initial load
+        async function initApp() {
+            AppState.loadFromStorage();
+            listCustomers();
+            listAgents();
+            listDestinations();
+            listBookings();
+            await listReviews();
+            updateDashboard();
+            loadDataStorage();
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
